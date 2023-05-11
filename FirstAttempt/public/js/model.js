@@ -3,13 +3,12 @@ const canvas = document.getElementById("renderCanvas");
 class RootModel extends Croquet.Model {
 
     /**
-    * Initialize the Model.
-    * */
+     * Initialize the Model.
+     * */
     init() {
         this.linkedViews = [];
         this.isUserManipulating = false;
         this.viewInControl = null;
-        this.isHologramEnabled = false;
 
         this.subscribe(this.sessionId, "view-join", this.viewJoin);
         this.subscribe(this.sessionId, "view-exit", this.viewDrop);
@@ -20,6 +19,7 @@ class RootModel extends Croquet.Model {
         this.subscribe("hologram", "rotationChanged", this.updateRotation);
         this.subscribe("hologram", "scaleChanged", this.updateScale);
         this.subscribe("image", "found", this.showHologram);
+        this.subscribe("image", "updated", this.updateHologram);
 
         this.#initializeScene();
         this.#activateRenderLoop();
@@ -43,6 +43,7 @@ class RootModel extends Croquet.Model {
         console.log("MODEL: received view left");
         this.linkedViews.splice(this.linkedViews.indexOf(viewId),1);
 
+
         if(this.viewInControl === viewId){
             this.isUserManipulating = false;
             this.linkedViews.forEach(v => this.publish(v, "showManipulatorMenu"));
@@ -56,6 +57,15 @@ class RootModel extends Croquet.Model {
 
     showHologram(){
         console.log("MODEL: receive image found")
+        this.sphere.setEnabled(true);
+        this.publish("interactions", "showMenu");
+    }
+
+    updateHologram(data){
+        this.sphere.position = new BABYLON.Vector3(data.position_x, data.position_y, data.position_z);
+        this.sphere.rotationQuaternion = new BABYLON.Quaternion(data.rotation_x, data.rotation_y, data.rotation_z, data.rotation_w);
+        this.sphere.scaling = new BABYLON.Vector3(data.scale_x, data.scale_y, data.scale_z);
+        this.sphere.scaling.set(data.realWorldWidth / data.ratio, data.realWorldWidth / data.ratio, data.realWorldWidth / data.ratio);
     }
 
     /**
@@ -114,14 +124,6 @@ class RootModel extends Croquet.Model {
         console.log("MODEL: receive color button clicked");
         this.sphere.material.diffuseColor = this.#computeColor(data.color);
     }
-
-    notifyImageDetected() {
-        this.isHologramEnabled = true;
-        this.sphere.setEnabled(true);
-        console.log("MODEL: publish hologram is enabled");
-        //this.publish("hologram", "isEnabled");
-    }
-
 
     #computeColor(colorName){
         switch (colorName) {
