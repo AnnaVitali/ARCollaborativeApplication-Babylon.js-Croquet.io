@@ -13,7 +13,6 @@ class RootModel extends Croquet.Model {
 
         this.#initializeScene();
         this.#activateRenderLoop();
-
     }
 
     /**
@@ -72,15 +71,13 @@ class RootModel extends Croquet.Model {
                 }
             });
         } else {
-
             this.#displayMessageError()
-
         }
 
-        try {
-            xrHelper.baseExperience.featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", { xrInput: xr.input });
-        } catch (err) {
-            console.log("Articulated hand tracking not supported in this browser.");
+        if(xrHelper !== undefined){
+            const featuresManager = xrHelper.baseExperience.featuresManager;
+
+            this.#enableFeatures(featuresManager);
         }
 
         return this.scene;
@@ -93,7 +90,9 @@ class RootModel extends Croquet.Model {
     }
 
     #displayMessageError(){
-        //Add GUI for non-AR mode
+        const advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI(
+            "FullscreenUI"
+        );
         const rectangle = new BABYLON.GUI.Rectangle("rect");
         rectangle.background = "black";
         rectangle.color = "blue";
@@ -109,14 +108,67 @@ class RootModel extends Croquet.Model {
         message.textWrapping = true;
         message.text = "AR is not available in your system. \n" +
             "Please make sure you use a supported mobile device such as a modern Android device and a supported browser like Chrome. \n" +
-            "Make sure you have Google AR services installed and that you enabled the WebXR incubation flag under chrome://flags\"";
+            "Make sure you have Google AR services installed and that you enabled the WebXR incubation flag under chrome://flags";
         message.color = "white";
         message.fontSize = "20px";
-        message.height = "100px"
+        message.height = "200px"
 
         message.paddingLeft = "10px";
         message.paddingRight = "10px";
         panel.addControl(message);
+    }
+
+    #enableFeatures(featuresManager) {
+        this.#enableHandsTrackingFeature(featuresManager);
+        this.#enableImageTrackingFeature(featuresManager);
+    }
+
+    #enableHandsTrackingFeature(featuresManager){
+        try {
+            featuresManager.enableFeature(BABYLON.WebXRFeatureName.HAND_TRACKING, "latest", { xrInput: xr.input });
+        } catch (err) {
+            console.log("Articulated hand tracking not supported in this browser or device.");
+        }
+
+    }
+
+    #enableImageTrackingFeature(featuresManager){
+        try {
+            const imageTracking = featuresManager.enableFeature(BABYLON.WebXRFeatureName.IMAGE_TRACKING, 'latest', {
+                images: [
+                    {
+                        src: "../img/imageTracking.png",
+                        estimatedRealWorldWidth: 0.1
+                    }
+                ]
+            });
+
+            this.sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 0.2, segments: 32}, this.scene);
+            this.sphere.position = new BABYLON.Vector3(0, 1.2, 0.5); //new BABYLON.Vector3(0, 1.3, 1);
+            this.sphere.setEnabled(false);
+
+            const material = new BABYLON.StandardMaterial("material", this.scene);
+            material.diffuseColor = BABYLON.Color3.White();
+
+            this.sphere.material = material;
+
+            imageTracking.onUntrackableImageFoundObservable.add((image) => {
+                console.log("image untrackable", image);
+            });
+
+            imageTracking.onTrackableImageFoundObservable.add((idx) => {
+                console.log("image found", idx);
+                this.sphere.setEnabled(true);
+            });
+
+            imageTracking.onTrackedImageUpdatedObservable.add((image) => {
+                image.transformationMatrix.decompose(this.sphere.scalin, this.sphere.rotationQuaternion, this.sphere.position);
+                this.sphere.scaling.set(image.realWorldWidth/ image.ratio, image.RealWorldWidth / image.ratio, image.realWorldWidth / image.ratio);
+            });
+        }catch(error){
+            console.log("Image tracking not supported in this browser or device.");
+        }
+
     }
 
 }
