@@ -117,7 +117,7 @@ class RootView extends Croquet.View {
         this.manipulatorNearMenu.rows = 1;
         this.model.GUIManager.addControl(this.manipulatorNearMenu);
         this.manipulatorNearMenu.isPinned = true;
-        this.manipulatorNearMenu.position = new BABYLON.Vector3(this.model.sphere.position.x + 0.4, this.model.sphere.position.y, this.model.sphere.position.z + 0.5);
+        this.manipulatorNearMenu.position = new BABYLON.Vector3(this.model.sphere.position.x - 0.4, this.model.sphere.position.y + 0.1, this.model.sphere.position.z + 0.5);
 
         this.controlButton = new BABYLON.GUI.TouchHolographicButton();
         this.#setDefaultControlButtonBehavior()
@@ -229,21 +229,24 @@ class RootView extends Croquet.View {
             this.model.imageTracking.onTrackedImageUpdatedObservable.add((image) => {
                 console.log("image updated", image);
                 console.log("VIEW: publish image updated");
-                const position = image.absolutePosition;
-                const rotation = image.absoluteRotationQuaternion;
-                const scale = image.absoluteScaling;
+
+                const scaling = BABYLON.Vector3.Zero();
+                const rotationQuaternion = BABYLON.Quaternion.Zero();
+                const translation = BABYLON.Vector3.Zero();
+
+                image.transformationMatrix.decompose(scaling, rotationQuaternion, translation);
 
                 this.publish("image", "updated", {
-                    position_x: position.x,
-                    position_y: position.y,
-                    position_z: position.z,
-                    rotation_x: rotation.x,
-                    rotation_y: rotation.y,
-                    rotation_z: rotation.z,
-                    rotation_w: rotation.w,
-                    scale_x: scale.x,
-                    scale_y: scale.y,
-                    scale_z: scale.z,
+                    position_x: translation.x,
+                    position_y: translation.y,
+                    position_z: translation.z,
+                    rotation_x: rotationQuaternion.x,
+                    rotation_y: rotationQuaternion.y,
+                    rotation_z: rotationQuaternion.z,
+                    rotation_w: rotationQuaternion.w,
+                    scale_x: scaling.x,
+                    scale_y: scaling.y,
+                    scale_z: scaling.z,
                     ratio: image.ratio,
                     realWorldWidth: image.realWorldWidth
                 })

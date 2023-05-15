@@ -43,10 +43,10 @@ class RootModel extends Croquet.Model {
         console.log("MODEL: received view left");
         this.linkedViews.splice(this.linkedViews.indexOf(viewId),1);
 
-
         if(this.viewInControl === viewId){
             this.isUserManipulating = false;
             this.linkedViews.forEach(v => this.publish(v, "showManipulatorMenu"));
+
         }
 
         if(this.linkedViews.length === 0){
@@ -62,6 +62,7 @@ class RootModel extends Croquet.Model {
     }
 
     updateHologram(data){
+        console.log("MODEL: receive image updated")
         this.sphere.position = new BABYLON.Vector3(data.position_x, data.position_y, data.position_z);
         this.sphere.rotationQuaternion = new BABYLON.Quaternion(data.rotation_x, data.rotation_y, data.rotation_z, data.rotation_w);
         this.sphere.scaling = new BABYLON.Vector3(data.scale_x, data.scale_y, data.scale_z);
