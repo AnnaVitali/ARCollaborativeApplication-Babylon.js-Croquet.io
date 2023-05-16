@@ -1,6 +1,6 @@
 # ARCollaborativeApplication-Babylon.js-Croquet.io
 
-This repository contains some examples of applications made using Babylon.js and Croquet.io
+This repository contains some examples of applications made using Babylon.js and Croquet.io.
 
 In detail the examples realized have as objective to create a collaborative AR experience thanks to the use of WebXR, enabling multiple user to see and interact with holograms visible in the same point in space thanks to the usage of a marker.
 
