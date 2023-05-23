@@ -165,8 +165,6 @@ class RootModel extends Croquet.Model {
 
         this.trackerTransformNode = new ZapparBabylon.ImageAnchorTransformNode('tracker', this.camera, imageTracker, this.scene);
 
-        //const imageAnchorTransformNode = new ZapparBabylon.ImageTrackerTransformNode('tracker', camera, imageTracker, scene)
-
         this.sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 0.2, segments: 32}, this.scene);
         this.sphere.position = new BABYLON.Vector3(0, 1.2, 0.5); //new BABYLON.Vector3(0, 1.3, 1);
         this.sphere.visible = false;
