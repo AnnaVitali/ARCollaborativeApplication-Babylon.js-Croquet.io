@@ -138,10 +138,6 @@ class RootModel extends Croquet.Model {
         const beta = Math.PI/50;
         const radius = 220;
         const target = new BABYLON.Vector3(0, 0, 0);
-        /*
-        const camera = new BABYLON.ArcRotateCamera("Camera", alpha, beta, radius, target, this.scene);
-        camera.attachControl(canvas, true);
-        */
 
         this.camera = new ZapparBabylon.Camera('camera', this.scene);
 
