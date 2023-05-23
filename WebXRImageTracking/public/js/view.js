@@ -164,6 +164,7 @@ class RootView extends Croquet.View {
     #addHologramManipulator(){
         //create bounding box and object controls
         this.viewSphere = BABYLON.MeshBuilder.CreateSphere("viewSphere", {diameter: 0.2, segments: 32}, this.model.scene);
+        this.viewSphere.parent = this.model.parent;
         this.viewSphere.position = new BABYLON.Vector3(this.model.sphere.absolutePosition.x, this.model.sphere.absolutePosition.y, this.model.sphere.absolutePosition.z);
         this.viewSphere.rotationQuaternion = new BABYLON.Quaternion(this.model.sphere.absoluteRotationQuaternion.x, this.model.sphere.absoluteRotationQuaternion.y, this.model.sphere.absoluteRotationQuaternion.z, this.model.sphere.absoluteRotationQuaternion.w);
         this.viewSphere.scaling = new BABYLON.Vector3(this.model.sphere.absoluteScaling.x, this.model.sphere.absoluteScaling.y, this.model.sphere.absoluteScaling.z);
@@ -203,49 +204,6 @@ class RootView extends Croquet.View {
             this.notifyCurrentUserReleaseControl();
         });
     }
-/*
-    #addImageTrackingObservables(){
-        if(!this.model.imageTracking.onUntrackableImageFoundObservable.hasObservers()) {
-            this.model.imageTracking.onUntrackableImageFoundObservable.add((idx) => {
-                console.log("image untrackable", idx);
-            });
-        }
-        if(!this.model.imageTracking.onTrackableImageFoundObservable.hasObservers()) {
-            this.model.imageTracking.onTrackableImageFoundObservable.add((image) => {
-                console.log("image found", image);
-                console.log("VIEW: publish image found");
-                this.publish("image", "found")
-            });
-        }
-
-        if(!this.model.imageTracking.onTrackedImageUpdatedObservable.hasObservers()) {
-            this.model.imageTracking.onTrackedImageUpdatedObservable.add((image) => {
-                console.log("image updated", image);
-                console.log("VIEW: publish image updated");
-
-                const scaling = BABYLON.Vector3.Zero();
-                const rotationQuaternion = BABYLON.Quaternion.Zero();
-                const translation = BABYLON.Vector3.Zero();
-
-                image.transformationMatrix.decompose(scaling, rotationQuaternion, translation);
-
-               this.publish("image", "updated", {
-                    position_x: translation.x,
-                    position_y: translation.y,
-                    position_z: translation.z,
-                    rotation_x: rotationQuaternion.x,
-                    rotation_y: rotationQuaternion.y,
-                    rotation_z: rotationQuaternion.z,
-                    rotation_w: rotationQuaternion.w,
-                    scale_x: scaling.x,
-                    scale_y: scaling.y,
-                    scale_z: scaling.z,
-                    ratio: image.ratio,
-                    realWorldWidth: image.realWorldWidth
-                })
-            });
-        }
-    }*/
 
 }
 

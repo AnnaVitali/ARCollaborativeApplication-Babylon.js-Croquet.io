@@ -44,7 +44,6 @@ class RootModel extends Croquet.Model {
         if(this.viewInControl === viewId){
             this.isUserManipulating = false;
             this.linkedViews.forEach(v => this.publish(v, "showManipulatorMenu"));
-
         }
 
         if(this.linkedViews.length === 0){
@@ -59,7 +58,7 @@ class RootModel extends Croquet.Model {
      */
     updatePosition(data){
         console.log("MODEL: received position changed");
-        this.sphere.position = new BABYLON.Vector3(data.position_x, data.position_y, data.position_z);
+        this.sphere.setAbsolutePosition(new BABYLON.Vector3(data.position_x, data.position_y, data.position_z));
     }
 
     /**
@@ -86,6 +85,9 @@ class RootModel extends Croquet.Model {
      */
     manageUserHologramControl(data){
         console.log("MODEL: received manage user hologram control");
+        if(!this.isManipulationPhaseStarted){
+            this.isManipulationPhaseStarted = true;
+        }
         this.isUserManipulating = true;
         this.viewInControl = data.view;
         this.linkedViews.filter(v => data.view !== v).forEach(v => this.publish(v, "hideManipulatorMenu"));
@@ -240,29 +242,40 @@ class RootModel extends Croquet.Model {
             });
 
             this.sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 0.2, segments: 32}, this.scene);
-            this.sphere.position = new BABYLON.Vector3(0, 1.2, 0.5); //new BABYLON.Vector3(0, 1.3, 1);
-            this.sphere.setEnabled(false);
+            this.sphere.position = new BABYLON.Vector3(0, 0, 0); //new BABYLON.Vector3(0, 1.3, 1);
+            this.sphere.isVisible = false;
 
             const material = new BABYLON.StandardMaterial("material", this.scene);
             material.diffuseColor = BABYLON.Color3.White();
 
             this.sphere.material = material;
 
+            this.placeholder = new BABYLON.TransformNode("placeholder")
+            this.placeholder.isVisible = false;
+
+            this.sphere.parent = this.placeholder;
+
 
             this.imageTracking.onUntrackableImageFoundObservable.add((idx) => {
-                console.log("image untrackable", idx);
+                console.log("image untrackable");
             });
 
 
             this.imageTracking.onTrackableImageFoundObservable.add((image) => {
-                console.log("image found", image);
-                this.sphere.setEnabled(true);
+                console.log("image trackable");
+                console.log("sphere is visible" + this.sphere.isVisible);
+                console.log("placeholder is visible" + this.placeholder.isVisible);
             });
 
             this.imageTracking.onTrackedImageUpdatedObservable.add((image) => {
-                console.log("image updated", image);
-
-                image.transformationMatrix.decompose(this.sphere.scaling, this.sphere.rotationQuaternion, this.sphere.position);
+                console.log("image found");
+                if(!this.sphere.isVisible){
+                    this.sphere.isVisible = true;
+                }
+                image.transformationMatrix.decompose(this.placeholder.scaling, this.placeholder.rotationQuaternion, this.placeholder.position);
+                console.log("image position " + image.position);
+                console.log("sphere position " + this.sphere.position);
+                console.log("sphere absolute position " + this.sphere.absolutePosition);
 
             });
 
