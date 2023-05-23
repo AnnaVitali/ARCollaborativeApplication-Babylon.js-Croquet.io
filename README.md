@@ -7,7 +7,7 @@ In detail the examples realized have as objective to create a collaborative AR e
 ## WebXR Image Tracking
 This example shows how it is possible to create a collaborative application that allows users to see a hologram at the same point of space thanks to the use of a target and the API provided by WebXR that is accessed through Babylon.js.
 
-
+![Alt Text](img/image_tracking_WebXR.gif)
 
 To test the example this **image target** was used:
 
